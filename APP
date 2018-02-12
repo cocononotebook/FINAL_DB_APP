@@ -45,12 +45,19 @@ ui <- navbarPage(
                       mainPanel(
                           dataTableOutput("DTM"))
                       )
-                      ),
-             tabPanel("檢視評語詞彙",tableOutput("TEST"))
-             
+                      )
            )
            
-  )
+  ),
+  tabPanel("檢視評語權重",
+           sidebarLayout(
+             sidebarPanel(
+               selectInput("ST_ID_WEIGHT","ST_ID_WEIGHT","DEFAULT"),
+               selectInput("CLASS_ID_WEIGHT","CLASS_ID_WEIGHT","DEFAULT")
+             ),
+             mainPanel(
+               dataTableOutput("TERMS_WEIGHT")))
+           )
 
 )
 
@@ -76,21 +83,32 @@ server <- function(input,output,session){
   output$DTM<-renderDataTable({
     DTM()
   })
-  
   output$TERM_STATS<-renderText({
     if(input$TERM_CK==TRUE)
     DTM_FETCH_TERMS()
   })
   
-  output$TEST<-renderTable({
-    TEST()
-  })
+  output$TERMS_WEIGHT<-renderDataTable({
+    TERMS_WEIGHT()
+    })
+    
   
-  TEST<-function(){
-    TESTFRAME=DTM()
-    class(TESTFRAME)
+  
+  TERMS_WEIGHT<-function(){
+    if(input$CLASS_ID_WEIGHT!="所有場次"){
+      A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'","AND inter_review_id=",input$CLASS_ID_WEIGHT)))
+      
+      cbind(A_DF_ONE[4:10],A_DF_ONE[15])
+      
+    }
+    
+    else if(input$CLASS_ID_WEIGHT=="所有場次"){
+      
+      A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
+      
+      cbind(A_DF_ALL[4:10],A_DF_ALL[15])
+    }
   }
-
   
   DTM<-function(){
     A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
@@ -223,16 +241,20 @@ server <- function(input,output,session){
       DTM_TERMS_CLEAN=DTM_TERMS[-grep("GIVER_ID",DTM_TERMS)]
       DTM_TERMS_CLEAN=DTM_TERMS[-grep("V",DTM_TERMS)]
       DTM_TERM_DB=dbReadTable(con,"A_TERMS")[,1]
+      DTM_TERM_WEIGHT_DB=dbReadTable(con,"A_TERMS_WEIGHT")[,1]
       for(u in 1:length(DTM_TERMS_CLEAN)){
         
-        if(length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_DB))!=0){
+        if(length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_DB))!=0&&
+           length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_WEIGHT_DB))!=0){
           
         }else if(length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_DB))==0){
           
           dbSendQuery(con,paste0("Insert into A_TERMS(TERMS)VALUES('",DTM_TERMS_CLEAN[u],"')"))
+          
+        }else if(length(grep(DTM_TERMS_CLEAN[u], DTM_TERM_WEIGHT_DB))==0)
+          
           dbSendQuery(con,paste0("Insert into A_TERMS_WEIGHT(TERMS)VALUES('",DTM_TERMS_CLEAN[u],"')"))
         }
-      }
       dbCommit(con)
     }
     return("DONE")
@@ -377,7 +399,9 @@ server <- function(input,output,session){
         
       
       }
-    }
+  }
+  
+  ST_WEIGHT<-function(){}
 
   UPDATE_SELEINPUT_ST_ID<-function(){
     A_DB=dbReadTable(con,"A_DB")
@@ -407,9 +431,26 @@ server <- function(input,output,session){
                       "CLASS_ID_U",
                       "CLASS_ID_NU",
                       c("所有場次",
-                        levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID),2]))))
+                        levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID_U),2]))))
   }
   observe(UPDATE_SELEINPUT_CLASS_ID_U())
+  
+  UPDATE_SELEINPUT_ST_ID_WEIGHT<-function(){
+    A_DB=dbReadTable(con,"A_DB")
+    updateSelectInput(session,"ST_ID_WEIGHT","ST_ID_WEIGHT_N",levels(as.factor(A_DB[,3])))
+  }
+  observe(UPDATE_SELEINPUT_ST_ID_WEIGHT())
+  
+  UPDATE_SELEINPUT_CLASS_ID_WEIGHT<-function(){
+    A_DB=dbReadTable(con,"A_DB")
+    updateSelectInput(session,
+                      "CLASS_ID_WEIGHT",
+                      "CLASS_ID_WEIGHT_N",
+                      c("所有場次",
+                        levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID_WEIGHT),2]))))
+  }
+  observe(UPDATE_SELEINPUT_CLASS_ID_WEIGHT())
+  
   
   
   
@@ -427,25 +468,12 @@ server <- function(input,output,session){
       for(u in 1:length(USER_TERMS_ORG[,1])){
         #11091 
         dbSendQuery(con, paste0("Insert into A_TERMS(TERMS)VALUES('",USER_TERMS_ORG[,1][u],"')") )
-        dbSendQuery(con, paste0("Insert into A_TERMS_WEIGHT(TERMS)VALUES('",USER_TERMS_ORG[,1][u],"')") )
-        
         }
       dbCommit(con)
     }
   }
   observe(FT_TERMS_DB_GENERATE())
   
-  FT_TERMS_WEIGHT_DB_GENERATE<-function(){
-    if(length(dbReadTable(con,"A_TERMS_WEIGHT")[,1])==0){
-      USER_TERMS_ORG=read.table("/home/rstudio/USER_TERMS")
-      for(u in 1:length(USER_TERMS_ORG[,1])){
-        dbSendQuery(con, paste0("Insert into A_TERMS_WEIGHT(TERMS)VALUES('",USER_TERMS_ORG[,1][u],"')") )
-        
-      }
-      dbCommit(con)
-    }
-  }
-  observe(FT_TERMS_WEIGHT_DB_GENERATE())
   
   #點擊上傳評語詞彙，進行更新USER_TEMRS
   USER_TERMS_UPDATE<-function(){
@@ -453,6 +481,8 @@ server <- function(input,output,session){
     write.table(dbReadTable(con,"A_TERMS"),col.names=FALSE,row.names=FALSE,quote=FALSE,"/home/rstudio/USER_TERMS")
   } 
   observe(USER_TERMS_UPDATE())
+  
+  
   
   
   
