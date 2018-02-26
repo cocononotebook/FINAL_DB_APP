@@ -1,3 +1,20 @@
+#新版本_介面更改
+#分詞工具
+library("stringr")
+library(jiebaR)#分詞套件
+library(text2vec)
+library("ROracle")
+library("wordcloud2")
+library(shiny)
+
+#DB Setting
+Sys.setenv(NLS_LANG="AMERICAN_AMERICA.UTF8")
+drv <- dbDriver("Oracle")
+con <- dbConnect(drv,
+                 username = "system",
+                 password = "Password04",
+                 dbname="localhost:1521/orcl")
+
 # Define UI for application that draws a histogram
 ui <- navbarPage(
   title ="同儕評量質性回饋正負評自動化分析系統",
@@ -8,7 +25,7 @@ ui <- navbarPage(
                actionButton("UPLOAD_B","上傳UPLOAD資料表")),
              mainPanel(tableOutput("UPLOADOutput")))),
   
-  tabPanel("學號、同儕互評場次",
+  tabPanel("jiebaR分詞訓練",
            tabsetPanel(
              tabPanel("原語料庫:分詞檢視與訓練",
                       sidebarLayout(
@@ -31,9 +48,17 @@ ui <- navbarPage(
                           ),
                         mainPanel(
                           tableOutput("ST_ID_U")))
-                      ),
+                      )
+
              
-             tabPanel("文本矩陣計算",
+           )
+           
+  ),
+  
+  tabPanel("text2vec文本矩陣處理",  
+           tabsetPanel(
+             #A_USER_COMMENTS_WEIGHT_DB
+             tabPanel("詞彙上傳",
                       sidebarLayout(
                         sidebarPanel(
                           checkboxInput("CORPUS_CK","原語料庫:分詞檢視與訓練"),
@@ -42,21 +67,32 @@ ui <- navbarPage(
                           checkboxInput("TERM_CK","上傳評語詞彙"),
                           textOutput("TERM_STATS")
                         ),
-                      mainPanel(
+                        mainPanel(
                           dataTableOutput("DTM"))
+                        )
+                    ),
+             #A_USER_TERMS_WEIGHT_DB
+             tabPanel("DTM權重",
+                      sidebarLayout(
+                        sidebarPanel(
+                          radioButtons("DTMradio_COMMENTS","DTM權重",c("評語權重","詞彙權重"))
+                        ),mainPanel(tableOutput("DTM_WEIGHT")))
                       )
-                      )
-           )
-           
-  ),
-  tabPanel("檢視評語權重",
+
+             
+             )
+           ),
+  
+  tabPanel("檢視權重",
            sidebarLayout(
              sidebarPanel(
                selectInput("ST_ID_WEIGHT","ST_ID_WEIGHT","DEFAULT"),
                selectInput("CLASS_ID_WEIGHT","CLASS_ID_WEIGHT","DEFAULT")
              ),
              mainPanel(
-               dataTableOutput("TERMS_WEIGHT")))
+               textOutput("TERMS_WEIGHT_STATS"),
+               tableOutput("TERMS_WEIGHT")
+               ))
            )
 
 )
@@ -88,27 +124,85 @@ server <- function(input,output,session){
     DTM_FETCH_TERMS()
   })
   
-  output$TERMS_WEIGHT<-renderDataTable({
+  output$DTM_WEIGHT<-renderTable({
+    DTM_WEIGHT()
+  })
+  
+  output$TERMS_WEIGHT<-renderTable({
     TERMS_WEIGHT()
     })
     
-  
-  
   TERMS_WEIGHT<-function(){
-    if(input$CLASS_ID_WEIGHT!="所有場次"){
-      A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'","AND inter_review_id=",input$CLASS_ID_WEIGHT)))
-      
-      cbind(A_DF_ONE[4:10],A_DF_ONE[15])
-      
+    A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
+    
+      if(input$CLASS_ID_WEIGHT!="所有場次"){
+        
+        A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'","AND inter_review_id=",input$CLASS_ID_WEIGHT)))
+        
+        A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
+        
+        for(u in 2:length(A_DF_ONE[,1]))
+          A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+        
+        #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+        it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+        vocab=create_vocabulary(it)
+        vectorizer  = vocab_vectorizer(vocab)
+        dtm = create_dtm(it, vectorizer)
+        
+        DTM=as.matrix(dtm)
+        
+        #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+        
+        for(i in 1:length(colnames(DTM))){
+          if(length (which( colnames(as.matrix(dtm))[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0)
+            DTM[,i]=DTM[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(as.matrix(dtm))[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+        else 
+          DTM[,i]=DTM[,i]*0
+        }
+        
+        dataW=data.frame(WEIGHT=1:length(rownames(DTM)))
+        
+        for(i in 1:length(rownames(DTM))){
+          dataW[i,1]= sum(DTM[i,])/length(which ((DTM[i,]!=0) ) )
+        }
+        
+        #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15)
+        
+            #DTM[,217]=DTM[,217] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(as.matrix(dtm))[217]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+        #53
+        #for(u in 1:length(as.matrix(dtm)[,1])){
+        #10
+        #for(u2 in 1:length(as.matrix(dtm[u,])!=0)){
+        #as.matrix(dtm)[u,][u2]*999
+        #}
+        #}
+        
+        cbind(A_DF_ONE[4],as.matrix(dtm))
+        #which(as.matrix(dtm)[1,]!=0)
+        #which(dbReadTable(con,"A_TERMS_WEIGHT")[1]=="沒印象")
+        #length( which( dbReadTable(con,"A_TERMS_WEIGHT")[1]==""  ) )
+        #grep (names(as.matrix(dtm)[1,][1]) ,dbReadTable(con,"A_TERMS_WEIGHT")[1])
+        
+      }
+      else if(input$CLASS_ID_WEIGHT=="所有場次"){
+        
+        A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
+        
+        A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+        for(u in 2:length(A_DF_ALL[,1]))
+          A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+        
+        #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+        it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
+        vocab=create_vocabulary(it)
+        vectorizer  = vocab_vectorizer(vocab)
+        dtm = create_dtm(it, vectorizer)
+    
+        cbind(A_DF_ALL[4],as.matrix(dtm))      
+      }
     }
     
-    else if(input$CLASS_ID_WEIGHT=="所有場次"){
-      
-      A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
-      
-      cbind(A_DF_ALL[4:10],A_DF_ALL[15])
-    }
-  }
   
   DTM<-function(){
     A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
@@ -173,9 +267,9 @@ server <- function(input,output,session){
     else if(input$CORPUS_CK_U==TRUE&& length(input$CORPUS)!=0){
       A_CUT_U=worker(stop_word ="/home/rstudio/USER_STOPWORDS",bylines=TRUE,user=input$CORPUS$datapath)
       
-      if(input$CLASS_ID!="所有場次"){
+      if(input$CLASS_ID_U!="所有場次"){
         
-        A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID,"'","AND inter_review_id=",input$CLASS_ID)))
+        A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_U,"'","AND inter_review_id=",input$CLASS_ID_U)))
         
         A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
         
@@ -200,10 +294,9 @@ server <- function(input,output,session){
         cbind(A_DF_ONE[4],as.matrix(dtm))
       }
       
-      else if(input$CLASS_ID=="所有場次"){
+      else if(input$CLASS_ID_U=="所有場次"){
         
-        A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID,"'")))
-        
+        A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_U,"'")))
         
         A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])  
         
@@ -232,6 +325,13 @@ server <- function(input,output,session){
     else{}
   }
   
+  DTM_WEIGHT<-function(){
+    DTM_TERMS=colnames(DTM())
+    DTM_TERMS_CLEAN=DTM_TERMS[-grep("GIVER_ID",DTM_TERMS)]
+    #DTM_TERMS_CLEAN=DTM_TERMS[-grep("V",DTM_TERMS)]
+    #DTM_TERMS_CLEAN
+  }
+  
   #擷取DTM的詞彙.匯入DB的TERMS與WEIGHT
   DTM_FETCH_TERMS<-function(){
     
@@ -244,14 +344,17 @@ server <- function(input,output,session){
       DTM_TERM_WEIGHT_DB=dbReadTable(con,"A_TERMS_WEIGHT")[,1]
       for(u in 1:length(DTM_TERMS_CLEAN)){
         
-        if(length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_DB))!=0&&
-           length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_WEIGHT_DB))!=0){
+        
+        if( length (which (DTM_TERM_DB==DTM_TERMS_CLEAN[u] ))!=0&&
+            length (which (DTM_TERM_WEIGHT_DB==DTM_TERMS_CLEAN[u]))!=0){
           
-        }else if(length(grep(DTM_TERMS_CLEAN[u],DTM_TERM_DB))==0){
+          #DO NOTHING
+          
+        }else if(length(which(DTM_TERM_DB==DTM_TERMS_CLEAN[u] ))==0){
           
           dbSendQuery(con,paste0("Insert into A_TERMS(TERMS)VALUES('",DTM_TERMS_CLEAN[u],"')"))
           
-        }else if(length(grep(DTM_TERMS_CLEAN[u], DTM_TERM_WEIGHT_DB))==0)
+        }else if(length(which (DTM_TERM_WEIGHT_DB==DTM_TERMS_CLEAN[u]))==0)
           
           dbSendQuery(con,paste0("Insert into A_TERMS_WEIGHT(TERMS)VALUES('",DTM_TERMS_CLEAN[u],"')"))
         }
@@ -400,8 +503,6 @@ server <- function(input,output,session){
       
       }
   }
-  
-  ST_WEIGHT<-function(){}
 
   UPDATE_SELEINPUT_ST_ID<-function(){
     A_DB=dbReadTable(con,"A_DB")
