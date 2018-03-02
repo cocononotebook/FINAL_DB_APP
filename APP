@@ -1,4 +1,3 @@
-#新版本_介面更改
 #分詞工具
 library("stringr")
 library(jiebaR)#分詞套件
@@ -83,11 +82,13 @@ ui <- navbarPage(
              )
            ),
   
-  tabPanel("檢視權重",
+  tabPanel("NOCHECK_NOFUN_檢視權重_詞彙分數*次數",
            sidebarLayout(
              sidebarPanel(
                selectInput("ST_ID_WEIGHT","ST_ID_WEIGHT","DEFAULT"),
-               selectInput("CLASS_ID_WEIGHT","CLASS_ID_WEIGHT","DEFAULT")
+               selectInput("CLASS_ID_WEIGHT","CLASS_ID_WEIGHT","DEFAULT"),
+               conditionalPanel("input.CLASS_ID_WEIGHT=='所有場次'",
+                                actionButton("UPLOAD_DTM_1","橫_評語權重"))
              ),
              mainPanel(
                textOutput("TERMS_WEIGHT_STATS"),
@@ -119,6 +120,7 @@ server <- function(input,output,session){
   output$DTM<-renderDataTable({
     DTM()
   })
+  
   output$TERM_STATS<-renderText({
     if(input$TERM_CK==TRUE)
     DTM_FETCH_TERMS()
@@ -151,22 +153,19 @@ server <- function(input,output,session){
         dtm = create_dtm(it, vectorizer)
         
         DTM=as.matrix(dtm)
+        DTM2=as.matrix(dtm)
         
         #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
         
+        #WEIGHT
         for(i in 1:length(colnames(DTM))){
           if(length (which( colnames(as.matrix(dtm))[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0)
             DTM[,i]=DTM[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(as.matrix(dtm))[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
         else 
           DTM[,i]=DTM[,i]*0
         }
-        
-        dataW=data.frame(WEIGHT=1:length(rownames(DTM)))
-        
-        for(i in 1:length(rownames(DTM))){
-          dataW[i,1]= sum(DTM[i,])/length(which ((DTM[i,]!=0) ) )
-        }
-        
+        #
+ 
         #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15)
         
             #DTM[,217]=DTM[,217] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(as.matrix(dtm))[217]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
@@ -178,7 +177,52 @@ server <- function(input,output,session){
         #}
         #}
         
-        cbind(A_DF_ONE[4],as.matrix(dtm))
+        TEST=cbind(A_DF_ONE[4],DTM)
+        colnames(TEST)[1]="G_ID"
+        TEST_CLEAN=TEST[-grep("V",colnames(TEST))]
+
+        
+        #橫_評語權重
+        
+        #評語數量.53
+        length(TEST_CLEAN[,1])
+        #分詞數量.2XX
+        length(TEST_CLEAN[1,])
+        
+        CMT_WEIGHT=data.frame(GIVER_ID=A_DF_ONE[4],
+                              INTER_VIEW_ID=A_DF_ONE[2],
+                              TERMS_COMMENTS=A_DF_ONE_15, 
+                              ITEM_AVG=0,
+                              COMMENTS_AVG=0
+                              #,COUNTS=0
+                              )
+        #53
+        for(i in 1:length(TEST_CLEAN[,1])){
+          CMT_WEIGHT[i,"ITEM_AVG"]=(sum(A_DF_ONE[i,5:10])/6)
+          CMT_WEIGHT[i,"COMMENTS_AVG"]= sum( as.data.frame(DTM)[i,-which( is.na(as.data.frame(DTM)[i,])==TRUE )] ) / sum( as.data.frame(DTM2)[i,which (as.data.frame(DTM)[i,]!=0 ) ])
+          #CMT_WEIGHT[i,"COUNTS"]=sum( as.data.frame(DTM2)[i,which (as.data.frame(DTM)[i,]!=0 ) ])
+        }
+        CMT_WEIGHT
+        
+
+
+
+        #as.data.frame(DTM)[1,]
+        #T1=as.data.frame(DTM)[i,-which( is.na(as.data.frame(DTM)[1,])==TRUE )]
+        
+        #T1=T1[i,-which( is.na(as.data.frame(DTM)[1,])==0 )]
+        
+        #CMT_WEIGHT
+        
+      
+        #which( is.na(as.data.frame(DTM)[1,])==TRUE ) 
+      
+        
+        
+        
+        
+        
+        
         #which(as.matrix(dtm)[1,]!=0)
         #which(dbReadTable(con,"A_TERMS_WEIGHT")[1]=="沒印象")
         #length( which( dbReadTable(con,"A_TERMS_WEIGHT")[1]==""  ) )
@@ -233,7 +277,16 @@ server <- function(input,output,session){
           }
         )
         
-        cbind(A_DF_ONE[4],as.matrix(dtm))
+        TEST=cbind(A_DF_ONE[4],as.matrix(dtm))
+        colnames(TEST)[1]="G_ID"
+        TEST
+        TEST[-grep("V",colnames(TEST))]
+        
+        
+        #TEST[-(colnames(TEST)=="GIVER_ID")]
+      
+        #TEST[-which(colnames(TEST)==grep("V",colnames(TEST)))]
+
         
       }
       else if(input$CLASS_ID=="所有場次"){
@@ -326,10 +379,7 @@ server <- function(input,output,session){
   }
   
   DTM_WEIGHT<-function(){
-    DTM_TERMS=colnames(DTM())
-    DTM_TERMS_CLEAN=DTM_TERMS[-grep("GIVER_ID",DTM_TERMS)]
-    #DTM_TERMS_CLEAN=DTM_TERMS[-grep("V",DTM_TERMS)]
-    #DTM_TERMS_CLEAN
+    DTM()
   }
   
   #擷取DTM的詞彙.匯入DB的TERMS與WEIGHT
@@ -551,9 +601,6 @@ server <- function(input,output,session){
                         levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID_WEIGHT),2]))))
   }
   observe(UPDATE_SELEINPUT_CLASS_ID_WEIGHT())
-  
-  
-  
   
   #資料庫初始設定
   DB_SET<-function(){
