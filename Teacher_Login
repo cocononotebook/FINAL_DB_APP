@@ -1,0 +1,678 @@
+#rm(list = ls())
+#分詞工具
+Logged = FALSE;
+my_username <- "test"
+my_password <- "test"
+Reg_UserName_Check<-dbReadTable(con,"A_REG_CONFIRM")[,1]
+
+library(shiny)
+library("stringr")
+library(jiebaR)#分詞套件
+library(text2vec)
+library("ROracle")
+library("wordcloud2")
+library(shiny)
+#DB Setting
+Sys.setenv(NLS_LANG="AMERICAN_AMERICA.UTF8")
+drv <- dbDriver("Oracle")
+con <- dbConnect(drv,
+                 username = "system",
+                 password = "Password04",
+                 dbname="localhost:1521/orcl")
+
+ui1 <- function(){
+  tagList(
+    div(id = "login",
+        wellPanel(textInput("userName", "Username"),
+                  passwordInput("passwd", "Password"),
+                  br(),actionButton("Login", "Log in"),
+                  br(),br(),actionButton("Register","Register"),
+                  textOutput("Login_STATS")) ),
+    tags$style(type="text/css", "#login {font-size:10px;   text-align: left;position:absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -150px;}")
+  )}
+
+ui2 <- function(){tagList(tabPanel("Test"))}
+
+ui_Reg<-function(){
+  tagList(
+    div(id = "login",
+        wellPanel(textInput("Reg_userName", "Reg_Username"),
+                  passwordInput("Reg_passwd", "Reg_Password"),
+                  br(),actionButton("Reg_Confirm", "Confirm"),
+                  br(),br(),actionButton("Reg_Cancel","Cancel"),
+                  textOutput("Reg_STATS")) ),
+    tags$style(type="text/css", "#login {font-size:10px;   text-align: left;position:absolute;top: 40%;left: 50%;margin-top: -100px;margin-left: -150px;}")
+  )
+}
+
+ui = (htmlOutput("page"))
+
+server = (function(input, output,session) {
+  
+  USER <- reactiveValues(Logged = Logged)
+  
+  #檢查輸入帳密是否符合預設值
+  observe({ 
+    if (USER$Logged == FALSE) {
+      if (!is.null(input$Login)) {
+        if (input$Login > 0) {
+          Username <- isolate(input$userName)
+          Password <- isolate(input$passwd)
+          Id.username <- which(my_username == Username)
+          Id.password <- which(my_password == Password)
+          if (length(Id.username) > 0 & length(Id.password) > 0) {
+            if (Id.username == Id.password) {
+              USER$Logged <- TRUE
+            }
+          }
+        } 
+      }
+    }    
+  })
+  
+  output$Login_STATS<-renderText({
+    if(input$Login!=0){
+      if(input$userName=="")
+        return("Fill the UserName!")
+      if(input$passwd=="")
+        return("Fill the Password!")
+      if(input$userName!=my_username || input$passwd!=my_password)
+        print("Wrong UserName or Password")
+    }
+  })
+  
+  output$Reg_STATS<-renderText({
+   input$Reg_Confirm
+    
+    #input$Reg_Confirm
+   
+  #  if(input$Reg_Confirm!=0){
+  #    if(input$Reg_userName=="")
+  #      return("Fill the UserName!")
+  #    if(input$Reg_passwd=="")
+  #      return("Fill the Password!")
+  #    if(length (which (input$Reg_userName==Reg_UserName_Check ) )!=0)
+  #      return("Same UserName We have")
+  #  }
+  })
+  
+  #Reg_Page
+  Reg_Page<-function(){
+    RegisterCounts=isolate(input$Register)
+    Reg_CancelCounts=isolate(input$Register)
+    if(is.null(input$Register)){
+    
+    }else if(input$Register!=0){
+      output$page <- renderUI({
+        div(class="outer",do.call(bootstrapPage,c("",ui_Reg())))
+      })
+    }
+    
+    if(is.null(input$Reg_Cancel)){
+      
+    }else if(input$Reg_Cancel==input$Register){
+      output$page <- renderUI({
+        div(class="outer",do.call(bootstrapPage,c("",ui1())))
+      })
+    }else if(RegisterCounts==Reg_CancelCounts){
+      output$page <- renderUI({
+        div(class="outer",do.call(bootstrapPage,c("",ui_Reg())))
+      })
+    }
+    
+
+    
+  }
+  observe(Reg_Page() )
+  
+  Reg_DB<-function(){
+    if(is.null(input$Reg_Confirm)){
+      
+    }
+    else{
+      Reg_UserName=isolate(input$Reg_userName)
+      Reg_Password=isolate(input$Reg_passwd)
+      Id.UserName=length(which(Reg_UserName_Check == Reg_UserName))
+      Id.Password=Reg_Password
+      if(Id.UserName !=0){
+        
+      }else
+        if(length(unlist(strsplit(input$Reg_userName,"")))>5  & length(unlist(strsplit(input$Reg_passwd,"")))>5 ){
+          if(input$Reg_Confirm!=0){
+            dbSendQuery(con,paste0("INSERT INTO A_REG_CONFIRM(OWNER_ID)VALUES('",toupper(input$Reg_userName),"')"))
+            dbCommit(con)
+            output$page <- renderUI({
+              div(class="outer",do.call(bootstrapPage,c("Scuess",ui_Reg())))
+            })
+          }
+
+           }else{}
+      }
+    }
+  observe(Reg_DB())
+  
+  
+  #根據帳密輸入成功與失敗的結果顯示出各別的頁面
+  observe({
+    if (USER$Logged == FALSE) {
+      output$page <- renderUI({
+        div(class="outer",do.call(bootstrapPage,c("",ui1())))
+      })
+    }
+    
+
+    
+    if (USER$Logged == TRUE) 
+    {
+      output$page <- renderUI({
+        navbarPage(
+          title ="同儕評量質性回饋正負評自動化分析系統",
+          tabPanel("資料上傳",
+                   sidebarLayout(
+                     sidebarPanel(
+                       fileInput("UPLOAD","上傳到UPLOAD資料表"),
+                       actionButton("UPLOAD_B","上傳UPLOAD資料表"),
+                       textOutput("A_DB_STATS")),
+                     mainPanel(tableOutput("UPLOADOutput")))),
+          tabPanel("量化紀錄",
+                   sidebarLayout(
+                     sidebarPanel(
+                       selectInput("ST_ID_WEIGHT","ST_ID_WEIGHT","DEFAULT"),
+                       selectInput("CLASS_ID_WEIGHT","CLASS_ID_WEIGHT","DEFAULT"),
+                       conditionalPanel("input.CLASS_ID_WEIGHT=='所有場次'",
+                                        actionButton("UPLOAD_DTM","橫_評語權重"),
+                                        textOutput("UPLOAD_STATS"))),
+                     mainPanel(
+                       tableOutput("TERMS_WEIGHT")))
+                   ),
+          tabPanel("質化紀錄",
+                   sidebarLayout(
+                     sidebarPanel(
+                       selectInput("ST_ID_CLOUD","ST_ID_CLOUD","DEFAULT"),
+                       selectInput("CLASS_ID_CLOUD","CLASS_ID_CLOUD","DEFAULT")
+                     ),
+                     mainPanel(
+                       wordcloud2Output("DTM_TRANS_WORDCLOUD2"),
+                       textOutput("FINAL_SCORE")
+                     )
+                   ))
+          
+          )#navbarPage
+      }) #page
+      
+
+      
+      output$UPLOADOutput<-renderTable({
+        read.csv(input$UPLOAD$datapath)
+      })
+      
+      output$A_DB_STATS<-renderText({
+        InsertUpload()
+      })
+      
+      output$TERMS_WEIGHT<-renderTable({
+        TERMS_WEIGHT()
+      })
+      
+      output$UPLOAD_STATS<-renderText({
+        return(USER_CMT_WEIGHT_DB())
+      })
+      
+      output$DTM_TRANS_WORDCLOUD2<-renderWordcloud2 ({
+        DTM_TRANS_WORDCLOUD2()
+      })
+      
+      output$FINAL_SCORE<-renderText({
+        FINAL_SCORE()
+      })
+      
+      UPDATE_SELEINPUT_ST_ID_WEIGHT<-function(){
+        A_DB=dbReadTable(con,"A_DB")
+        updateSelectInput(session,"ST_ID_WEIGHT","ST_ID_WEIGHT_N",levels(as.factor(A_DB[,3])))
+      }
+      observe(UPDATE_SELEINPUT_ST_ID_WEIGHT())
+      
+      UPDATE_SELEINPUT_CLASS_ID_WEIGHT<-function(){
+        A_DB=dbReadTable(con,"A_DB")
+        updateSelectInput(session,
+                          "CLASS_ID_WEIGHT",
+                          "CLASS_ID_WEIGHT_N",
+                          c("所有場次",
+                            levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID_WEIGHT),2]))))
+      }
+      observe(UPDATE_SELEINPUT_CLASS_ID_WEIGHT())
+      
+      UPDATE_SELECTINPUT_ST_ID_CLOUD<-function(){
+        A_DB=dbReadTable(con,"A_DB")
+        updateSelectInput(session,"ST_ID_CLOUD","ST_ID_CLOUD_N",levels(as.factor(A_DB[,3])))
+      }
+      observe(UPDATE_SELECTINPUT_ST_ID_CLOUD())
+      
+      UPDATE_SELECTINPUT_CLASS_ID_CLOUD<-function(){
+        A_DB=dbReadTable(con,"A_DB")
+        updateSelectInput(session,
+                          "CLASS_ID_CLOUD",
+                          "CLASS_ID_CLOUD_N",
+                          c("所有場次",
+                            levels(as.factor(A_DB[which(A_DB[,3]==input$ST_ID_CLOUD),2]))))
+      }
+      observe(UPDATE_SELECTINPUT_CLASS_ID_CLOUD())
+      
+      ##
+      
+      FINAL_SCORE<-function(){
+        FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )/ length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
+        FINAL_LENGTH=length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
+        if(FINAL_SCORE >=4.5){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為優良。")
+        }else if(FINAL_SCORE>=4){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為良好。")
+        }else if(FINAL_SCORE>=3.5){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為中上。")
+        }else if(FINAL_SCORE>=3){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為普通。")
+        }else if(FINAL_SCORE>=2.5){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為中下。")
+        }else if(FINAL_SCORE>=2){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為不良。")
+        }else if(FINAL_SCORE>=1.5){
+          paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為困乏。")
+        }
+      }
+      
+      DTM_TRANS_WORDCLOUD2<-function(){
+        A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
+        
+        if(input$CLASS_ID_CLOUD!="所有場次"){
+          
+          A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_CLOUD,"'","AND inter_review_id=",input$CLASS_ID_CLOUD)))
+          
+          A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
+          
+          for(u in 2:length(A_DF_ONE[,1]))
+            A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                        COUNTS=0,
+                                        WEIGHT=0,
+                                        TERMS_SCORE=0)
+          #379
+          for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+            TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+            TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+            if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+            }else{
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+            }
+          }
+          #COUNTS
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+          #WEIGHT
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          #SCORE
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          
+          
+          
+        }
+        else if(input$CLASS_ID_CLOUD=="所有場次"){
+          
+          A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_CLOUD,"'")))
+          
+          A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+          for(u in 2:length(A_DF_ALL[,1]))
+            A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          #Terms_Score
+          #F_DTM_CLEAN
+          
+          #Terms_Counts
+          #F_DTM2_CLEAN
+          
+          TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                        COUNTS=0,
+                                        WEIGHT=0,
+                                        TERMS_SCORE=0)
+          #379
+          for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+            TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+            TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+            if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+            }else{
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+            }
+          }
+          
+          #COUNTS
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+          #WEIGHT
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          #SCORE
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          
+      
+        }
+      }
+      
+      TERMS_WEIGHT<-function(){
+        A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
+        
+        if(input$CLASS_ID_WEIGHT!="所有場次"){
+          
+          A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'","AND inter_review_id=",input$CLASS_ID_WEIGHT)))
+          
+          A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
+          
+          for(u in 2:length(A_DF_ONE[,1]))
+            A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          CMT_WEIGHT=data.frame(GIVER_ID=A_DF_ONE[4],
+                                INTER_VIEW_ID=A_DF_ONE[2],
+                                TERMS_COMMENTS=A_DF_ONE_15, 
+                                ITEM_AVG=0,
+                                COMMENTS_AVG=0
+          )
+          #
+          #53
+          for(i in 1:length(F_DTM_CLEAN[,1])){
+            CMT_WEIGHT[i,"ITEM_AVG"]=sum(A_DF_ONE[i,5:10])/6
+            if(sum(F_DTM_CLEAN[i,])==0)
+              next;
+            CMT_WEIGHT[i,"COMMENTS_AVG"]= sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) 
+          }
+          CMT_WEIGHT
+          
+          
+          
+          
+          
+          #as.data.frame(DTM)[1,]
+          #T1=as.data.frame(DTM)[i,-which( is.na(as.data.frame(DTM)[1,])==TRUE )]
+          
+          #T1=T1[i,-which( is.na(as.data.frame(DTM)[1,])==0 )]
+          
+          #CMT_WEIGHT
+          
+          
+          #which( is.na(as.data.frame(DTM)[1,])==TRUE ) 
+          
+          
+          
+          #which(as.matrix(dtm)[1,]!=0)
+          #which(dbReadTable(con,"A_TERMS_WEIGHT")[1]=="沒印象")
+          #length( which( dbReadTable(con,"A_TERMS_WEIGHT")[1]==""  ) )
+          #grep (names(as.matrix(dtm)[1,][1]) ,dbReadTable(con,"A_TERMS_WEIGHT")[1])
+          
+        }
+        else if(input$CLASS_ID_WEIGHT=="所有場次"){
+          
+          A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
+          
+          A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+          for(u in 2:length(A_DF_ALL[,1]))
+            A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          CMT_WEIGHT=data.frame(GIVER_ID=A_DF_ALL[4],
+                                INTER_VIEW_ID=A_DF_ALL[2],
+                                TERMS_COMMENTS=A_DF_ALL_15, 
+                                ITEM_AVG=0,
+                                COMMENTS_AVG=0
+          )
+          #
+          #53
+          for(i in 1:length(F_DTM_CLEAN[,1])){
+            CMT_WEIGHT[i,"ITEM_AVG"]=sum(A_DF_ALL[i,5:10])/6
+            if(sum(F_DTM_CLEAN[i,])==0)
+              next;
+            CMT_WEIGHT[i,"COMMENTS_AVG"]= sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) 
+          }
+          CMT_WEIGHT
+          
+          
+        }
+      }
+      
+      #資料庫初始設定
+      DB_SET<-function(){
+        dbSendQuery(con,"ALTER SYSTEM SET open_cursors = 60000")
+      }
+      observe(DB_SET())
+      
+      #輸入初始資料庫的TERM.TERM_WEIGHT的詞彙
+      FT_TERMS_DB_GENERATE<-function(){
+        if(length(dbReadTable(con,"A_TERMS")[,1])==0){
+          USER_TERMS_ORG=read.table("/home/rstudio/USER_TERMS")
+          for(u in 1:length(USER_TERMS_ORG[,1])){
+            #11091 
+            dbSendQuery(con, paste0("Insert into A_TERMS(TERMS)VALUES('",USER_TERMS_ORG[,1][u],"')") )
+          }
+          dbCommit(con)
+        }
+      }
+      observe(FT_TERMS_DB_GENERATE())
+      
+      #點擊上傳評語詞彙，進行更新USER_TEMRS
+      USER_TERMS_UPDATE<-function(){
+        if(length(dbReadTable(con,"A_TERMS")[,1])!=0)
+          write.table(dbReadTable(con,"A_TERMS"),col.names=FALSE,row.names=FALSE,quote=FALSE,"/home/rstudio/USER_TERMS")
+      } 
+      observe(USER_TERMS_UPDATE())
+      
+      USER_CMT_WEIGHT_DB<-function(){
+        if(is.null(input$UPLOAD_DTM))
+          return(NULL)
+        
+        if( input$UPLOAD_DTM!=0 ){
+          CMT_WEIGHT=TERMS_WEIGHT()
+          
+          for(u in 1:length(CMT_WEIGHT[,1])){
+            
+            
+            if(length(which(paste(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,1],
+                                  
+                                  dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,2],
+                                  
+                                  dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,3],sep=",") ==
+                            
+                            paste(input$ST_ID_WEIGHT,
+                                  
+                                  CMT_WEIGHT[,1],
+                                  
+                                  CMT_WEIGHT[,2],sep=",")[u]))!=0){ 
+              
+            }else{
+              dbSendQuery(con,
+                          paste0("INSERT INTO A_OWNER_COMMENTS_WEIGHT(OWNER_ID,GIVER_ID,INTER_REVIEW_ID,TERMS_COMMENTS,ITEM_AVG,COMMENTS_AVG)VALUES('",
+                                 input$ST_ID_WEIGHT,"','",
+                                 CMT_WEIGHT[u,1],"',",
+                                 CMT_WEIGHT[u,2],",'",
+                                 CMT_WEIGHT[u,3],"',",
+                                 CMT_WEIGHT[u,4],",",
+                                 CMT_WEIGHT[u,5],")"))
+            }
+          }
+          dbCommit(con)
+          return("DONE")
+        }
+      }
+      observe(USER_CMT_WEIGHT_DB() )
+    
+      #設定SHINY參數值方法.
+      SHINTYa_SET<-function(){
+      }
+      observe(SHINTYa_SET())
+      
+      #上傳資料表插入A_DB資料表
+      InsertUpload<-function(){
+        if(is.null(input$UPLOAD$datapath)==TRUE)
+          return(NULL)
+        if(input$UPLOAD_B!=0){
+          A_UPLOAD=read.csv(input$UPLOAD$datapath)
+          for(u in 1:length(A_UPLOAD[,1])){
+            #判斷A_DB資料表與上傳資料表是否已有相同資料
+            if(length(which(paste(dbReadTable(con,"A_DB")[,2],
+                                  dbReadTable(con,"A_DB")[,3],
+                                  dbReadTable(con,"A_DB")[,4],sep=",") ==
+                            paste(A_UPLOAD[,2],
+                                  A_UPLOAD[,3],
+                                  A_UPLOAD[,4],sep=",")[u]))!=0  ||
+               #根據資料清理規格，將不需要的資料剃除
+               #空DATES欄位資料.無法除錯
+               as.character(A_UPLOAD[,1])[u]=="" ||
+               is.na(A_UPLOAD[, 2])[u] == TRUE   ||
+               as.character(A_UPLOAD[,3])[u]=="" ||
+               as.character(A_UPLOAD[,4])[u]=="" ||
+               is.na(A_UPLOAD[, 5])[u]== TRUE ||
+               is.na(A_UPLOAD[, 6])[u]== TRUE ||
+               is.na(A_UPLOAD[, 7])[u]== TRUE ||
+               is.na(A_UPLOAD[, 8])[u]== TRUE ||
+               is.na(A_UPLOAD[, 9])[u]== TRUE ||
+               is.na(A_UPLOAD[,10])[u]== TRUE ||
+               is.na(A_UPLOAD[,11])[u]== TRUE || 
+               is.na(A_UPLOAD[,12])[u]== TRUE ||
+               is.na(A_UPLOAD[,13])[u]== TRUE ||
+               is.na(A_UPLOAD[,14])[u]== TRUE ||
+               as.character(A_UPLOAD[,15])[u]=="" ||
+               as.character(A_UPLOAD[,16])[u]==""){
+              
+            }else{
+              dbSendQuery(con,
+                          paste0("INSERT INTO A_DB(CLASS_COURSE_NAME,INTER_REVIEW_ID,OWNER_ID,GIVER_ID,ITEM1,ITEM2,ITEM3,ITEM4,ITEM5,ITEM6,ITEM7,ITEM8,ITEM9,ITEM10,COMMENTS,REVIEW_DATE)VALUES('",
+                                 A_UPLOAD[u,][1][[1]],"',",
+                                 A_UPLOAD[u,][2][[1]],",'",
+                                 A_UPLOAD[u,][3][[1]],"','",
+                                 A_UPLOAD[u,][4][[1]],"',",
+                                 A_UPLOAD[u,][5][[1]],",",
+                                 A_UPLOAD[u,][6][[1]],",",
+                                 A_UPLOAD[u,][7][[1]],",",
+                                 A_UPLOAD[u,][8][[1]],",",
+                                 A_UPLOAD[u,][9][[1]],",",
+                                 A_UPLOAD[u,][10][[1]],",",
+                                 A_UPLOAD[u,][11][[1]],",",
+                                 A_UPLOAD[u,][12][[1]],",",
+                                 A_UPLOAD[u,][13][[1]],",",
+                                 A_UPLOAD[u,][14][[1]],",'",
+                                 A_UPLOAD[u,][15][[1]],"','",
+                                 A_UPLOAD[u,][16][[1]],"')"))
+            }
+          }
+          dbCommit(con)
+          return("UPLOAD_DONE")
+        }
+        
+      }
+      observe(InsertUpload())
+      
+      #print(ui)
+    }
+  }) #observe
+  
+})#server
+
+runApp(list(ui = ui, server = server))
