@@ -212,9 +212,7 @@ server = (function(input, output,session) {
           
           )#navbarPage
       }) #page
-      
-
-      
+   
       output$UPLOADOutput<-renderTable({
         read.csv(input$UPLOAD$datapath)
       })
@@ -334,7 +332,7 @@ server = (function(input, output,session) {
             }
           }
           #COUNTS
-          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
           #WEIGHT
           wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
           #SCORE
@@ -399,7 +397,7 @@ server = (function(input, output,session) {
           }
           
           #COUNTS
-          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
           #WEIGHT
           wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
           #SCORE
@@ -1184,7 +1182,9 @@ server = (function(input, output,session) {
                          wordcloud2Output("DTM_TRANS_WORDCLOUD2"),
                          textOutput("FINAL_SCORE")
                        )
-                     ))
+                     )),
+            tabPanel("Manager_詞彙訓練"),
+            tabPanel("Manager_檢視_矩陣處理")
             
           )#navbarPage
         }) #page
