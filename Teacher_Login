@@ -775,7 +775,6 @@ server = (function(input, output,session) {
       }
       observe(InsertUpload())
       }#STUDENT_UI_DONE
-    
       #
       if(my_username[which(my_username==input$userName),"JOB"]=="TEACHER"){
         output$page <- renderUI({
@@ -1431,7 +1430,11 @@ server = (function(input, output,session) {
                                           actionButton("UPLOAD_DTM","橫_評語權重"),
                                           textOutput("UPLOAD_STATS"))),
                        mainPanel(
-                         tableOutput("TERMS_WEIGHT")))
+                         tabsetPanel(
+                           tabPanel("評語量化",tableOutput("TERMS_WEIGHT")),
+                           tabPanel("詞彙量化",dataTableOutput("TERMS_WEIGHT_2"))
+                         )
+                       ))
             ),
             tabPanel("質化紀錄",
                      sidebarLayout(
@@ -1440,12 +1443,10 @@ server = (function(input, output,session) {
                          selectInput("CLASS_ID_CLOUD","CLASS_ID_CLOUD","DEFAULT")
                        ),
                        mainPanel(
-                         wordcloud2Output("DTM_TRANS_WORDCLOUD2"),
+                         wordcloud2Output("DTM_TRANS_WORDCLOUD2",width = "130%", height = "600px"),
                          textOutput("FINAL_SCORE")
                        )
-                     )),
-            tabPanel("Manager_詞彙訓練"),
-            tabPanel("Manager_檢視_矩陣處理")
+                     ))
             
           )#navbarPage
         }) #page
@@ -1460,6 +1461,10 @@ server = (function(input, output,session) {
         
         output$TERMS_WEIGHT<-renderTable({
           TERMS_WEIGHT()
+        })
+        
+        output$TERMS_WEIGHT_2<-renderDataTable({
+          TERMS_WEIGHT_2()
         })
         
         output$UPLOAD_STATS<-renderText({
@@ -1507,26 +1512,31 @@ server = (function(input, output,session) {
         observe(UPDATE_SELECTINPUT_CLASS_ID_CLOUD())
         
         ##
-        
         FINAL_SCORE<-function(){
-          FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )/ length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
-          FINAL_LENGTH=length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
+          if( input$CLASS_ID_CLOUD=="所有場次"){
+            FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )/ length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
+            FINAL_LENGTH=length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
+          }else{
+            FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"]) / length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"])
+            FINAL_LENGTH=length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"])}
+          #FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )/ length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
           if(FINAL_SCORE >=4.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為優良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為優良。")
           }else if(FINAL_SCORE>=4){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為良好。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為良好。")
           }else if(FINAL_SCORE>=3.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為中上。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為中上。")
           }else if(FINAL_SCORE>=3){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為普通。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為普通。")
           }else if(FINAL_SCORE>=2.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為中下。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為中下。")
           }else if(FINAL_SCORE>=2){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為不良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",format(FINAL_SCORE,digits = 3),"，評斷為不良。")
           }else if(FINAL_SCORE>=1.5){
             paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為困乏。")
           }
         }
+        
         
         DTM_TRANS_WORDCLOUD2<-function(){
           A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
@@ -1580,14 +1590,14 @@ server = (function(input, output,session) {
                 TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
               }
             }
+            TC=TERMS_CLOUD_WEIGHT[-which(TERMS_CLOUD_WEIGHT["TERMS_SCORE"]==0),]
+            
             #COUNTS
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+            #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
             #WEIGHT
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+            wordcloud2(TC[c("TERMS","WEIGHT")],size=0.6)
             #SCORE
             #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
-            
-            
             
           }
           else if(input$CLASS_ID_CLOUD=="所有場次"){
@@ -1644,16 +1654,132 @@ server = (function(input, output,session) {
                 TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
               }
             }
+            TC=TERMS_CLOUD_WEIGHT[-which(TERMS_CLOUD_WEIGHT["TERMS_SCORE"]==0),]
             
             #COUNTS
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+            #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
             #WEIGHT
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+            wordcloud2(TC[c("TERMS","WEIGHT")],size=0.6)
             #SCORE
             #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
             
             
           }
+        }
+        
+        TERMS_WEIGHT_2<-function(){
+          
+          A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
+          
+          if(input$CLASS_ID_WEIGHT!="所有場次"){
+            
+            A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'","AND inter_review_id=",input$CLASS_ID_WEIGHT)))
+            
+            A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
+            
+            for(u in 2:length(A_DF_ONE[,1]))
+              A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+            
+            #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+            it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+            vocab=create_vocabulary(it)
+            vectorizer  = vocab_vectorizer(vocab)
+            dtm = create_dtm(it, vectorizer)
+            
+            DTM=as.matrix(dtm)
+            DTM2=as.matrix(dtm)
+            
+            F_DTM=as.data.frame(DTM)
+            F_DTM2=as.data.frame(DTM2)
+            
+            F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+            F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+            
+            #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+            
+            #WEIGHT
+            for(i in 1:length(colnames(F_DTM_CLEAN))){
+              if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+                F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+              }
+              if(is.na(sum(F_DTM_CLEAN[,i])))
+                F_DTM_CLEAN[,i]=0
+            }
+            
+            TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                          COUNTS=0,
+                                          WEIGHT=0,
+                                          TERMS_SCORE=0)
+            #379
+            for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+              TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+              TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+              if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+                TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+              }else{
+                TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+              }
+            }
+            TERMS_CLOUD_WEIGHT
+          }
+          else if(input$CLASS_ID_WEIGHT=="所有場次"){
+            
+            A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
+            
+            A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+            for(u in 2:length(A_DF_ALL[,1]))
+              A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+            
+            #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+            it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
+            vocab=create_vocabulary(it)
+            vectorizer  = vocab_vectorizer(vocab)
+            dtm = create_dtm(it, vectorizer)
+            
+            DTM=as.matrix(dtm)
+            DTM2=as.matrix(dtm)
+            
+            F_DTM=as.data.frame(DTM)
+            F_DTM2=as.data.frame(DTM2)
+            
+            F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+            F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+            
+            #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+            
+            #WEIGHT
+            for(i in 1:length(colnames(F_DTM_CLEAN))){
+              if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+                F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+              }
+              if(is.na(sum(F_DTM_CLEAN[,i])))
+                F_DTM_CLEAN[,i]=0
+            }
+            
+            #Terms_Score
+            #F_DTM_CLEAN
+            
+            #Terms_Counts
+            #F_DTM2_CLEAN
+            
+            TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                          COUNTS=0,
+                                          WEIGHT=0,
+                                          TERMS_SCORE=0)
+            #379
+            for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+              TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+              TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+              if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+                TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+              }else{
+                TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+              }
+            }
+            TERMS_CLOUD_WEIGHT
+            
+          }
+          
         }
         
         TERMS_WEIGHT<-function(){
