@@ -210,7 +210,7 @@ server = (function(input, output,session) {
                        selectInput("CLASS_ID_CLOUD","CLASS_ID_CLOUD","DEFAULT")
                      ),
                      mainPanel(
-                       wordcloud2Output("DTM_TRANS_WORDCLOUD2"),
+                       wordcloud2Output("DTM_TRANS_WORDCLOUD2",width = "130%",height = "600px"),
                        textOutput("FINAL_SCORE")
                      )
                    ))
@@ -348,7 +348,7 @@ server = (function(input, output,session) {
           #COUNTS
           #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
           #WEIGHT
-          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]),size=0.6)
           #SCORE
           #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
           
@@ -413,7 +413,7 @@ server = (function(input, output,session) {
           #COUNTS
           #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
           #WEIGHT
-          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]),size=0.6)
           #SCORE
           #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
           
@@ -799,8 +799,8 @@ server = (function(input, output,session) {
                          tabsetPanel(
                            tabPanel("評語量化",tableOutput("TERMS_WEIGHT")),
                            tabPanel("詞彙量化",dataTableOutput("TERMS_WEIGHT_2"))
-                           )
-                         ))
+                         )
+                       ))
             ),
             tabPanel("質化紀錄",
                      sidebarLayout(
@@ -809,7 +809,7 @@ server = (function(input, output,session) {
                          selectInput("CLASS_ID_CLOUD","CLASS_ID_CLOUD","DEFAULT")
                        ),
                        mainPanel(
-                         wordcloud2Output("DTM_TRANS_WORDCLOUD2"),
+                         wordcloud2Output("DTM_TRANS_WORDCLOUD2",width = "130%", height = "600px"),
                          textOutput("FINAL_SCORE")
                        )
                      ))
@@ -902,7 +902,7 @@ server = (function(input, output,session) {
             paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，平均分數為",FINAL_SCORE,"，評斷為困乏。")
           }
         }
-
+        
         
         DTM_TRANS_WORDCLOUD2<-function(){
           A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
@@ -956,14 +956,14 @@ server = (function(input, output,session) {
                 TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
               }
             }
+            TC=TERMS_CLOUD_WEIGHT[-which(TERMS_CLOUD_WEIGHT["TERMS_SCORE"]==0),]
+            
             #COUNTS
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+            #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
             #WEIGHT
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+            wordcloud2(TC[c("TERMS","WEIGHT")],size=0.6)
             #SCORE
             #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
-            
-            
             
           }
           else if(input$CLASS_ID_CLOUD=="所有場次"){
@@ -1020,11 +1020,12 @@ server = (function(input, output,session) {
                 TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
               }
             }
+            TC=TERMS_CLOUD_WEIGHT[-which(TERMS_CLOUD_WEIGHT["TERMS_SCORE"]==0),]
             
             #COUNTS
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+            #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
             #WEIGHT
-            wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+            wordcloud2(TC[c("TERMS","WEIGHT")],size=0.6)
             #SCORE
             #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
             
@@ -1142,7 +1143,7 @@ server = (function(input, output,session) {
               }
             }
             TERMS_CLOUD_WEIGHT
-
+            
           }
           
         }
