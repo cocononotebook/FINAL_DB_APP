@@ -1447,7 +1447,9 @@ server = (function(input, output,session) {
                          wordcloud2Output("DTM_TRANS_WORDCLOUD2",width = "130%", height = "600px"),
                          textOutput("FINAL_SCORE")
                        )
-                     ))
+                     )),
+            tabPanel("中文分詞訓練"),
+            tabPanel("文字矩陣檢視")
             
           )#navbarPage
         }) #page
