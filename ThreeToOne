@@ -178,6 +178,7 @@ server = (function(input, output,session) {
     }
     
     if (USER$Logged == TRUE  ){
+      #DONE
       if(my_username[which(my_username==input$userName),"JOB"]=="STUDENT"){
       output$page <- renderUI({
         navbarPage(
@@ -199,7 +200,7 @@ server = (function(input, output,session) {
                      mainPanel(
                        tabsetPanel(
                          tabPanel("評語量化",tableOutput("TERMS_WEIGHT")),
-                         tabPanel("詞彙量化")
+                         tabPanel("詞彙量化",dataTableOutput("TERMS_WEIGHT_2"))
                        )
                        ))
                    ),
@@ -227,6 +228,10 @@ server = (function(input, output,session) {
       
       output$TERMS_WEIGHT<-renderTable({
         TERMS_WEIGHT()
+      })
+      
+      output$TERMS_WEIGHT_2<-renderDataTable({
+        TERMS_WEIGHT_2()
       })
       
       output$UPLOAD_STATS<-renderText({
@@ -416,6 +421,121 @@ server = (function(input, output,session) {
         }
       }
       
+      TERMS_WEIGHT_2<-function(){
+        
+        A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
+        
+        if(input$CLASS_ID_CLOUD!="所有場次"){
+          
+          A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$userName,"'","AND inter_review_id=",input$CLASS_ID_CLOUD)))
+          
+          A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
+          
+          for(u in 2:length(A_DF_ONE[,1]))
+            A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                        COUNTS=0,
+                                        WEIGHT=0,
+                                        TERMS_SCORE=0)
+          #379
+          for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+            TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+            TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+            if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+            }else{
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+            }
+          }
+          #COUNTS
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[2]))
+          #WEIGHT
+          wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          #SCORE
+          #wordcloud2( data.frame(TERMS_CLOUD_WEIGHT[1],TERMS_CLOUD_WEIGHT[3]))
+          
+          
+          
+        }
+        else if(input$CLASS_ID_CLOUD=="所有場次"){
+          
+          A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$userName,"'")))
+          
+          A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+          for(u in 2:length(A_DF_ALL[,1]))
+            A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+          
+          #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
+          it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
+          vocab=create_vocabulary(it)
+          vectorizer  = vocab_vectorizer(vocab)
+          dtm = create_dtm(it, vectorizer)
+          
+          DTM=as.matrix(dtm)
+          DTM2=as.matrix(dtm)
+          
+          F_DTM=as.data.frame(DTM)
+          F_DTM2=as.data.frame(DTM2)
+          
+          F_DTM_CLEAN=F_DTM[-grep("V",colnames(F_DTM))]
+          F_DTM2_CLEAN=F_DTM2[-grep("V",colnames(F_DTM2))]
+          
+          #cbind(A_DF_ONE[3:4],A_DF_ONE[2],TERMS=A_DF_ONE_15,WEIGHT=0)
+          
+          #WEIGHT
+          for(i in 1:length(colnames(F_DTM_CLEAN))){
+            if(length (which( colnames(F_DTM_CLEAN)[i] == dbReadTable(con,"A_TERMS_WEIGHT")[1] ) ) != 0){
+              F_DTM_CLEAN[,i]=F_DTM_CLEAN[,i] * dbReadTable(con,"A_TERMS_WEIGHT")[which( colnames(F_DTM_CLEAN)[i]==dbReadTable(con,"A_TERMS_WEIGHT")[1] ),2]
+            }
+            if(is.na(sum(F_DTM_CLEAN[,i])))
+              F_DTM_CLEAN[,i]=0
+          }
+          
+          TERMS_CLOUD_WEIGHT=data.frame(TERMS=colnames(F_DTM_CLEAN),
+                                        COUNTS=0,
+                                        WEIGHT=0,
+                                        TERMS_SCORE=0)
+          #379
+          for(u in 1:length(colnames (F_DTM_CLEAN)) ){
+            TERMS_CLOUD_WEIGHT[u,"COUNTS"]=sum(F_DTM2_CLEAN[,u])
+            TERMS_CLOUD_WEIGHT[u,"WEIGHT"]=sum(F_DTM_CLEAN[,u])
+            if(TERMS_CLOUD_WEIGHT[u,"WEIGHT"]==0){
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=0
+            }else{
+              TERMS_CLOUD_WEIGHT[u,"TERMS_SCORE"]=TERMS_CLOUD_WEIGHT[u,"WEIGHT"] / TERMS_CLOUD_WEIGHT[u,"COUNTS"]
+            }
+          }
+          TERMS_CLOUD_WEIGHT
+      
+        }
+      }
       #
       TERMS_WEIGHT<-function(){
         A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
@@ -465,33 +585,13 @@ server = (function(input, output,session) {
           #
           #53
           for(i in 1:length(F_DTM_CLEAN[,1])){
-            CMT_WEIGHT[i,"ITEM_AVG"]=sum(A_DF_ONE[i,5:10])/6
+            CMT_WEIGHT[i,"ITEM_AVG"]=format(sum(A_DF_ONE[i,5:10])/6,digits=3)
             if(sum(F_DTM_CLEAN[i,])==0)
               next;
-            CMT_WEIGHT[i,"COMMENTS_AVG"]= sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) 
+            CMT_WEIGHT[i,"COMMENTS_AVG"]=format( sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) ,digits =3)
           }
           CMT_WEIGHT
           
-          
-          
-          
-          
-          #as.data.frame(DTM)[1,]
-          #T1=as.data.frame(DTM)[i,-which( is.na(as.data.frame(DTM)[1,])==TRUE )]
-          
-          #T1=T1[i,-which( is.na(as.data.frame(DTM)[1,])==0 )]
-          
-          #CMT_WEIGHT
-          
-          
-          #which( is.na(as.data.frame(DTM)[1,])==TRUE ) 
-          
-          
-          
-          #which(as.matrix(dtm)[1,]!=0)
-          #which(dbReadTable(con,"A_TERMS_WEIGHT")[1]=="沒印象")
-          #length( which( dbReadTable(con,"A_TERMS_WEIGHT")[1]==""  ) )
-          #grep (names(as.matrix(dtm)[1,][1]) ,dbReadTable(con,"A_TERMS_WEIGHT")[1])
           
         }
         else if(input$CLASS_ID_WEIGHT=="所有場次"){
@@ -538,10 +638,10 @@ server = (function(input, output,session) {
           #
           #53
           for(i in 1:length(F_DTM_CLEAN[,1])){
-            CMT_WEIGHT[i,"ITEM_AVG"]=sum(A_DF_ALL[i,5:10])/6
+            CMT_WEIGHT[i,"ITEM_AVG"]=format(sum(A_DF_ALL[i,5:10])/6,digits=3)
             if(sum(F_DTM_CLEAN[i,])==0)
               next;
-            CMT_WEIGHT[i,"COMMENTS_AVG"]= sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) 
+            CMT_WEIGHT[i,"COMMENTS_AVG"]=format( sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) ,digits = 3)
           }
           CMT_WEIGHT
           
