@@ -276,19 +276,19 @@ server = (function(input, output,session) {
           FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] )
           FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
           if(FINAL_SCORE >=4.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
           }else if(FINAL_SCORE>=4){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
           }else if(FINAL_SCORE>=3.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
           }else if(FINAL_SCORE>=3){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
           }else if(FINAL_SCORE>=2.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
           }else if(FINAL_SCORE>=2){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
           }else if(FINAL_SCORE>=1.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
           }
           
           
@@ -299,19 +299,19 @@ server = (function(input, output,session) {
           FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
           
           if(FINAL_SCORE >=4.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
           }else if(FINAL_SCORE>=4){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
           }else if(FINAL_SCORE>=3.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
           }else if(FINAL_SCORE>=3){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
           }else if(FINAL_SCORE>=2.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
           }else if(FINAL_SCORE>=2){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
           }else if(FINAL_SCORE>=1.5){
-            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+            paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
           }
           
         }
@@ -912,19 +912,19 @@ server = (function(input, output,session) {
             FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] )
             FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
             if(FINAL_SCORE >=4.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
             }else if(FINAL_SCORE>=4){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
             }else if(FINAL_SCORE>=3.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
             }else if(FINAL_SCORE>=3){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
             }else if(FINAL_SCORE>=2.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
             }else if(FINAL_SCORE>=2){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
             }else if(FINAL_SCORE>=1.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
             }
             
             
@@ -935,19 +935,19 @@ server = (function(input, output,session) {
             FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
             
             if(FINAL_SCORE >=4.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
             }else if(FINAL_SCORE>=4){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
             }else if(FINAL_SCORE>=3.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
             }else if(FINAL_SCORE>=3){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
             }else if(FINAL_SCORE>=2.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
             }else if(FINAL_SCORE>=2){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
             }else if(FINAL_SCORE>=1.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
             }
             
           }
@@ -1823,19 +1823,19 @@ server = (function(input, output,session) {
             FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] )
             FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
              if(FINAL_SCORE >=4.5){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
              }else if(FINAL_SCORE>=4){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
              }else if(FINAL_SCORE>=3.5){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
              }else if(FINAL_SCORE>=3){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
              }else if(FINAL_SCORE>=2.5){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
              }else if(FINAL_SCORE>=2){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
              }else if(FINAL_SCORE>=1.5){
-               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+               paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
              }
              
              
@@ -1846,19 +1846,19 @@ server = (function(input, output,session) {
             FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
             
             if(FINAL_SCORE >=4.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
             }else if(FINAL_SCORE>=4){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為良好。")
             }else if(FINAL_SCORE>=3.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中上。")
             }else if(FINAL_SCORE>=3){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為普通。")
             }else if(FINAL_SCORE>=2.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為中下。")
             }else if(FINAL_SCORE>=2){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為不良。")
             }else if(FINAL_SCORE>=1.5){
-              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
+              paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為困乏。")
             }
             
             }
