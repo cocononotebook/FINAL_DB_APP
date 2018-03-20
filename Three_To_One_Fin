@@ -235,7 +235,7 @@ server = (function(input, output,session) {
       })
       
       output$UPLOAD_STATS<-renderText({
-        return(USER_CMT_WEIGHT_DB())
+        USER_CMT_WEIGHT_DB()
       })
       
       output$DTM_TRANS_WORDCLOUD2<-renderWordcloud2 ({
@@ -272,9 +272,9 @@ server = (function(input, output,session) {
         
         if(input$CLASS_ID_CLOUD=="所有場次"){
           #FINAL_SCORE=sum ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )/ length ( dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,"COMMENTS_AVG"] )
-          FINAL_SCORE=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] )
-          FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"COMMENTS_AVG"] )
-          FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
+          FINAL_SCORE=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"COMMENTS_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"COMMENTS_AVG"] )
+          FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"COMMENTS_AVG"] )
+          FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"ITEM_AVG"] )
           if(FINAL_SCORE >=4.5){
             paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
           }else if(FINAL_SCORE>=4){
@@ -293,10 +293,14 @@ server = (function(input, output,session) {
           
           
         }else{
+          FINAL_SCORE=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
+          #FINAL_SCORE=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
           
-          FINAL_SCORE=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
-          FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
-          FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
+          FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
+          #FINAL_LENGTH=length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),][which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT") [which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),]["INTER_REVIEW_ID"]==input$CLASS_ID_CLOUD),"COMMENTS_AVG"] )
+          
+          FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$userName),"ITEM_AVG"] )
+          #FINAL_ITEM=sum (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] ) / length (dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[which(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")["OWNER_ID"]==input$ST_ID_CLOUD),"ITEM_AVG"] )
           
           if(FINAL_SCORE >=4.5){
             paste("本系統收到",FINAL_LENGTH,"條評論，依據每個評論的詞彙分數和，除以",FINAL_LENGTH,"條評論，系統平均分數為",format(FINAL_SCORE,digits = 3),"人為平均分數為，",format(FINAL_ITEM,digits = 3),"，評斷為優良。")
@@ -597,7 +601,7 @@ server = (function(input, output,session) {
               F_DTM_CLEAN[,i]=0
           }
           
-          CMT_WEIGHT=data.frame(
+          CMT_WEIGHT=data.frame(GIVER_ID=A_DF_ONE[4],
                                 INTER_VIEW_ID=format(A_DF_ONE[2],digits = 3),
                                 TERMS_COMMENTS=A_DF_ONE_15, 
                                 ITEM_AVG=0,
@@ -611,7 +615,7 @@ server = (function(input, output,session) {
               next;
             CMT_WEIGHT[i,"COMMENTS_AVG"]=format( sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) ,digits =3)
           }
-          CMT_WEIGHT
+          CMT_WEIGHT[2:5]
           
           
         }
@@ -650,7 +654,7 @@ server = (function(input, output,session) {
               F_DTM_CLEAN[,i]=0
           }
           
-          CMT_WEIGHT=data.frame(
+          CMT_WEIGHT=data.frame(GIVER_ID=A_DF_ALL[4],
                                 INTER_VIEW_ID=format(A_DF_ALL[2],digits = 3),
                                 TERMS_COMMENTS=A_DF_ALL_15, 
                                 ITEM_AVG=0,
@@ -664,7 +668,7 @@ server = (function(input, output,session) {
               next;
             CMT_WEIGHT[i,"COMMENTS_AVG"]=format( sum( F_DTM_CLEAN[i,]) / sum( F_DTM2_CLEAN[i,which (F_DTM_CLEAN[i,]!=0 ) ]) ,digits = 3)
           }
-          CMT_WEIGHT
+          CMT_WEIGHT[2:5]
           
           
         }
@@ -706,17 +710,17 @@ server = (function(input, output,session) {
           for(u in 1:length(CMT_WEIGHT[,1])){
             
             
-            if(length(which(paste(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,1],
+            if(length(which(paste(dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,1],#OWNER_ID
                                   
-                                  dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,2],
+                                  #dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,2],#GIVER_ID
                                   
-                                  dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,3],sep=",") ==
+                                  dbReadTable(con,"A_OWNER_COMMENTS_WEIGHT")[,3],sep=",") == #INTER_REVIEW
                             
                             paste(input$userName,
                                   
-                                  CMT_WEIGHT[,1],
+                                  #CMT_WEIGHT[,1],
                                   
-                                  CMT_WEIGHT[,2],sep=",")[u]))!=0){ 
+                                  CMT_WEIGHT[,1],sep=",")[u]))!=0){ 
               
             }else{
               dbSendQuery(con,
@@ -733,6 +737,7 @@ server = (function(input, output,session) {
           return("DONE")
         }
       }
+      
       observe(USER_CMT_WEIGHT_DB() )
     
       #設定SHINY參數值方法.
