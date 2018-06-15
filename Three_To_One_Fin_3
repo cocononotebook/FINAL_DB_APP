@@ -1775,10 +1775,47 @@ server = (function(input, output,session) {
               
               A_DF_ONE=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_U,"'","AND inter_review_id=",input$CLASS_ID_U)))
               
-              A_DF_ONE_15=toString(A_CUT[str_replace_all(str_replace_all(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","")],"[^[:alnum:]]",""),"c","")][[1]])
+              #A_DF_ONE_15=toString(A_CUT[str_replace_all(str_replace_all(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","")],"[^[:alnum:]]",""),"c","")][[1]])
+              A_DF_ONE_15=A_CUT[str_replace_all(str_replace_all(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","")],"[^[:alnum:]]",""),"c","")][[1]]
+              
+              #Td=dbReadTable(con,"A_TERMS_WEIGHT")[which( dbReadTable(con,"A_TERMS_WEIGHT")[,2] == 0),1]
+              #GetLocation
+              #Tdf=which (Td==A_DF_ONE_15[i])
+              #A_DF_ONE_15=A_DF_ONE_15 [ -which(A_DF_ONE_15==Td[334]) ]
+              #Next One
+              #if (length (which ((A_DF_ONE_15[1]==Td)==1))==0)
+              
+              A_DF_ONE_15=A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ]
+              
+                for(l in 1:length(A_DF_ONE[,15])){
+                  
+                 for(i in 1:length(A_DF_ONE_15[l][[1]]) ){
+                    if (length (which ((A_DF_ONE_15[l][[1]][i][[1]]==Td)==TRUE))==0){
+                      #Firt one  & useful terms
+                      if(i==1)
+                        A_CL=A_DF_ONE_15[l][[1]][i][[1]]
+                      else{
+                        A_CL=paste(A_CL,A_DF_ONE_15[l][[1]][i][[1]],sep=",")
+                      }
+                    }
+                   
+                 }
+                  
+                }
+                
+                  if(l==1)
+                    A_DF_ONE_15_CL=A_CL
+                  else{
+                    A_DF_ONE_15_CL=rbind(A_DF_ONE_15_CL,A_CL)
+                  }
+                 }
+              #
               
               for(u in 2:length(A_DF_ONE[,1]))
                 A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+              
+              for(u in 2:length(A_DF_ONE[,1]))
+                AT_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
               
               output$DOWNLOAD_CORPUS_U<-downloadHandler(
                 filename = function(){
@@ -1788,10 +1825,14 @@ server = (function(input, output,session) {
                   write.csv(A_DF_ONE_15,file,col.names = FALSE,row.names = FALSE,quote = FALSE)
                 }
               )
-              cbind(A_DF_ONE[4],A_DF_ONE_15)
+              #dbReadTable(con,"A_TERMS_WEIGHT")[which(dbReadTable(con,"A_TERMS_WEIGHT")[,2]!=0),]
+              #which (A_DF_ONE_15[3]==dbReadTable(con,"A_TERMS_WEIGHT")[which(dbReadTable(con,"A_TERMS_WEIGHT")[,2]==0),] )
+              A_DF_ALL_15[,]
+              #cbind(A_DF_ONE[4],A_DF_ONE_15)
               
             }
             
+            #
             else if(input$CLASS_ID_U=="所有場次"){
               
               A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_U,"'")))
@@ -1809,6 +1850,7 @@ server = (function(input, output,session) {
                   write.csv(A_DF_ALL_15,file,col.names = FALSE,row.names = FALSE,quote = FALSE)
                 }
               )
+
               cbind(A_DF_ALL[4],A_DF_ALL_15)
               
             }
