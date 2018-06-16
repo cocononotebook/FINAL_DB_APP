@@ -1826,10 +1826,32 @@ server = (function(input, output,session) {
               
               A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_U,"'")))
               
-              A_DF_ALL_15=toString(A_CUT[str_replace_all(str_replace_all(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","")],"[^[:alnum:]]",""),"c","")][[1]])
+              #A_DF_ALL_15=toString(A_CUT[str_replace_all(str_replace_all(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","")],"[^[:alnum:]]",""),"c","")][[1]])
               
-              for(u in 2:length(A_DF_ALL[,1]))
-                A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+              Td=dbReadTable(con,"A_TERMS_WEIGHT")[which( dbReadTable(con,"A_TERMS_WEIGHT")[,2] == 0),1]
+              
+              A_DF_ALL_15=A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ]
+              
+              
+              
+              for(l in 1:length(A_DF_ALL[,15])){
+                A_CL=0
+                for(i in 1:length(A_DF_ALL_15[l][[1]]) ){
+                  if (length (which ((A_DF_ALL_15[l][[1]][i][[1]]==Td)==TRUE))==0){
+                    #Firt one  & useful terms
+                    if(is.character(A_CL)==FALSE)
+                      A_CL=A_DF_ALL_15[l][[1]][i][[1]]
+                    else{
+                      A_CL=paste(A_CL,A_DF_ALL_15[l][[1]][i][[1]],sep=",")
+                    }
+                  }
+                }
+                if(l==1)
+                  A_DF_ALL_15_CL=A_CL
+                else{
+                  A_DF_ALL_15_CL=rbind(A_DF_ALL_15_CL,toString(A_CL))
+                }
+              }
               
               output$DOWNLOAD_CORPUS_U<-downloadHandler(
                 filename = function(){
@@ -1840,7 +1862,7 @@ server = (function(input, output,session) {
                 }
               )
 
-              cbind(A_DF_ALL[4],A_DF_ALL_15)
+              cbind(A_DF_ALL[4],A_DF_ALL_15_CL[,1])
               
             }
           }else{
@@ -2283,6 +2305,7 @@ server = (function(input, output,session) {
           
         }
         
+        #
         TERMS_WEIGHT<-function(){
           A_CUT=worker(stop_word ="/home/rstudio/USER_STOPWORDS",user="/home/rstudio/USER_TERMS",bylines=TRUE)
           
