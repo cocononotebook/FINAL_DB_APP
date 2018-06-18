@@ -2315,8 +2315,32 @@ server = (function(input, output,session) {
             
             A_DF_ONE_15=toString(A_CUT[  str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[1]])
             
-            for(u in 2:length(A_DF_ONE[,1]))
-              A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
+            Td=dbReadTable(con,"A_TERMS_WEIGHT")[which( dbReadTable(con,"A_TERMS_WEIGHT")[,2] == 0),1]
+            
+            A_DF_ONE_15=A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ]
+            
+            for(l in 1:length(A_DF_ONE[,15])){
+              A_CL=0
+              for(i in 1:length(A_DF_ONE_15[l][[1]]) ){
+                if (length (which ((A_DF_ONE_15[l][[1]][i][[1]]==Td)==TRUE))==0){
+                  #Firt one  & useful terms
+                  if(is.character(A_CL)==FALSE)
+                    A_CL=A_DF_ONE_15[l][[1]][i][[1]]
+                  else{
+                    A_CL=paste(A_CL,A_DF_ONE_15[l][[1]][i][[1]],sep=",")
+                  }
+                }
+              }
+              if(l==1)
+                A_DF_ONE_15_CL=A_CL
+              else{
+                A_DF_ONE_15_CL=rbind(A_DF_ONE_15_CL,toString(A_CL))
+              }
+            }
+            
+            
+            #for(u in 2:length(A_DF_ONE[,1]))
+              #A_DF_ONE_15=rbind(A_DF_ONE_15,toString(A_CUT[str_replace_all( A_DF_ONE[,15] ,"[^[:alnum:]]","") ][[u]]))
             
             #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
             it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
@@ -2347,7 +2371,7 @@ server = (function(input, output,session) {
             CMT_WEIGHT=data.frame(CLASS_COURSE_NAME=A_DF_ONE[1],
                                   INTER_VIEW_ID=format(A_DF_ONE[2],digits = 3),
                                   GIVER_ID=A_DF_ONE[4],
-                                  TERMS_COMMENTS=A_DF_ONE_15, 
+                                  TERMS_COMMENTS=A_DF_ONE_15_CL[,1], 
                                   ITEM_AVG=0,
                                   COMMENTS_AVG=0
             )
@@ -2388,8 +2412,38 @@ server = (function(input, output,session) {
             A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
             
             A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
-            for(u in 2:length(A_DF_ALL[,1]))
-              A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
+            
+            Td=dbReadTable(con,"A_TERMS_WEIGHT")[which( dbReadTable(con,"A_TERMS_WEIGHT")[,2] == 0),1]
+            
+            A_DF_ALL_15=A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ]
+            
+            for(l in 1:length(A_DF_ALL[,15])){
+              A_CL=0
+              for(i in 1:length(A_DF_ALL_15[l][[1]]) ){
+                if (length (which ((A_DF_ALL_15[l][[1]][i][[1]]==Td)==TRUE))==0){
+                  #Firt one  & useful terms
+                  if(is.character(A_CL)==FALSE)
+                    A_CL=A_DF_ALL_15[l][[1]][i][[1]]
+                  else{
+                    A_CL=paste(A_CL,A_DF_ALL_15[l][[1]][i][[1]],sep=",")
+                  }
+                }
+              }
+              if(l==1)
+                A_DF_ALL_15_CL=A_CL
+              else{
+                A_DF_ALL_15_CL=rbind(A_DF_ALL_15_CL,toString(A_CL))
+              }
+            }
+            
+            
+            
+            #A_DF_ALL=dbFetch(dbSendStatement(con,paste0("SELECT * FROM A_DB where OWNER_ID=","'",input$ST_ID_WEIGHT,"'")))
+            
+            #A_DF_ALL_15=toString(A_CUT[  str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[1]])
+            
+            #for(u in 2:length(A_DF_ALL[,1]))
+              #A_DF_ALL_15=rbind(A_DF_ALL_15,toString(A_CUT[str_replace_all( A_DF_ALL[,15] ,"[^[:alnum:]]","") ][[u]]))
             
             #it=itoken(str_replace_all( A_DF_ONE_15 , "[^[:alnum:]]"," ") )
             it=itoken(str_replace_all( A_DF_ALL_15 , "[^[:alnum:]]"," ") )
@@ -2420,7 +2474,7 @@ server = (function(input, output,session) {
             CMT_WEIGHT=data.frame(CLASS_COURSE_NAME=A_DF_ALL[1],
                                   INTER_VIEW_ID=format(A_DF_ALL[2],digits = 3),
                                   GIVER_ID=A_DF_ALL[4],
-                                  TERMS_COMMENTS=A_DF_ALL_15, 
+                                  TERMS_COMMENTS=A_DF_ALL_15_CL[,1], 
                                   ITEM_AVG=0,
                                   COMMENTS_AVG=0
             )
