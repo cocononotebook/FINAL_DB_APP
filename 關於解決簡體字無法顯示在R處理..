@@ -1,5 +1,5 @@
 #library("readr")
-#read_table
+#read_table 用as.data.frame()轉換data.frame
 #read_file
 
 #測試read_csv.
