@@ -7,14 +7,14 @@ install.packages("tmcn")  #LTP是簡體，故需要轉編碼
 
 #LTP API參數說明 
 
-#api_key	用戶注冊語言雲服務後獲得的認証標識
-#text	待分析的文本。請以UTF-8格式編碼，GET方式最大10K，POST方式最大20K
-#pattern	"用以指定分析模式，可選值包括ws(分詞)，pos(詞性標注)，ner(命名實體識別)，dp(依存句法分析)，sdp(語義依存(樹)分析)，sdb_graph(語義依存圖分析)srl(語義角色標注),all(全部任務)plain格式中不允許指定全部任務"
-#format	用以指定結果格式類型，可選值包括xml(XML格式)，json(JSON格式)，conll(CONLL格式)，plain(簡潔文本格式)在指定pattern為all條件下，指定format為xml或json，返回結果將包含sdp結果，但conll格式不會包含sdp結果；
-#xml_input	用以指定輸入text是否是xml格式，可選值為false(默認值),true僅限POST方式,詳見重要說明-自定義分詞
-#has_key	用以指定json結果中是否含有鍵值，可選值包括true(含有鍵值，默認)，false(不含有鍵值)配合format=json使用
-#only_ner	用以指定plain格式中是否隻需要ner列表，可選值包括false(默認值)和true配合pattern=ner&format=plain使用
-#callback	用以指定JavaScript調用中所使用的回調函數名稱
+#api_key    用戶注冊語言雲服務後獲得的認証標識
+#text   待分析的文本。請以UTF-8格式編碼，GET方式最大10K，POST方式最大20K
+#pattern    用以指定分析模式，可選值包括ws(分詞)，pos(詞性標注)，ner(命名實體識別)，dp(依存句法分析)，sdp(語義依存(樹)分析)，sdb_graph(語義依存圖分析)srl(語義角色標注),all(全部任務)plain格式中不允許指定全部任務
+#format   用以指定結果格式類型，可選值包括xml(XML格式)，json(JSON格式)，conll(CONLL格式)，plain(簡潔文本格式)在指定pattern為all條件下，指定format為xml或json，返回結果將包含sdp結果，但conll格式不會包含sdp結果；
+#xml_input    用以指定輸入text是否是xml格式，可選值為false(默認值),true僅限POST方式,詳見重要說明-自定義分詞
+#has_key    用以指定json結果中是否含有鍵值，可選值包括true(含有鍵值，默認)，false(不含有鍵值)配合format=json使用
+#only_ner   用以指定plain格式中是否隻需要ner列表，可選值包括false(默認值)和true配合pattern=ner&format=plain使用
+#callback   用以指定JavaScript調用中所使用的回調函數名稱
 
 #簡單範例
 #getURL("https://api.ltp-cloud.com/analysis/?api_key=YourApiKey&text=ReplaceChinese。&pattern=ws&format=plain")
