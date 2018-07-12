@@ -42,11 +42,13 @@ RLTP_F<-function(key,path){
   toTrad(getURL(purl))
 #參數key為使用者註冊德的api_key
 #參數path為文本檔案位置，本方法直接用getwd()預設位置，才可以直接輸入檔名。
+
 }
 
 
 #待改善之處:
 #目前只用getURL.待探究。
+#方法RLTP_F，程式碼變數pattern,format沒有設定參數，直接寫死。
 
 
 
