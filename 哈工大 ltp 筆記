@@ -29,8 +29,23 @@ getURL("https://api.ltp-cloud.com/analysis/?api_key=YourApiKey&text=周緯峻嗨
 toTrad(getURL("https://api.ltp-cloud.com/analysis/?api_key=YourApiKey&text=周緯峻嗨嗨嗨。&pattern=ws&format=plain"))
 #再把LTP顯示結果轉為繁體，完成。
 
+#嘗試寫了一個簡單的方法.
+RLTP_F<-function(key,path){
+  base="https://api.ltp-cloud.com/analysis/?"
+  api_key=paste0("api_key=",key)
+  readUTF8=iconv(read.table(path,stringsAsFactors=FALSE)[1][[1]],,"UTF8") 
+   #read.csv(...)[1][[1]]該寫法用途為資料直接指向data.frame"資料"，避免產生向量。
+  textImport=paste0("&text=",toTrad(readUTF8,rev=T))
+  pattern="&pattern=ws"
+  format="&format=plain"
+  purl=paste0(base,api_key,textImport,pattern,format)
+  toTrad(getURL(purl))
+#參數key為使用者註冊德的api_key
+#參數path為文本檔案位置，本方法直接用getwd()預設位置，才可以直接輸入檔名。
+}
+
+
 #待改善之處:
-#getURL是抓string字串，用paste或是其他方法來將物件轉字串會更好活用。
 #目前只用getURL.待探究。
 
 
