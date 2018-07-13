@@ -1,0 +1,11 @@
+#read.csv()
+#read.table()
+
+#libarary("RCurl")
+#從網址抓取資料
+#libarary("Curl")
+#從網址抓取資料
+#libarayr("readr")
+#從本機抓取資料，解決了簡體編碼問題
+#library("XML")
+#轉XML檔案至R
