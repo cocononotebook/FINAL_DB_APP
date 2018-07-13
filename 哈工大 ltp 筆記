@@ -39,7 +39,7 @@ toTrad(getURL("https://api.ltp-cloud.com/analysis/?api_key=YourApiKey&text=周�
 RLTP_F<-function(key,path){
   base="https://api.ltp-cloud.com/analysis/?"
   api_key=paste0("api_key=",key)
-  readUTF8=iconv(read_file(path,stringsAsFactors=FALSE)[1][[1]],,"UTF8") 
+  readUTF8=iconv(read.(path,stringsAsFactors=FALSE)[1][[1]],,"UTF8") 
    #read.csv(...)[1][[1]]該寫法用途為資料直接指向data.frame"資料"，避免產生向量。
   textImport=paste0("&text=",toTrad(readUTF8,rev=T))
   pattern="&pattern=ws"
