@@ -1,0 +1,5 @@
+#小記
+
+unlist
+#以"向量"來取代"資料框"(matrix,data.frame,list等)出現factors分類格式levels()
+#levels(unlist(資料來源 或 資料物件["資料欄位名稱"]))
