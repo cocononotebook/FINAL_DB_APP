@@ -52,6 +52,7 @@ RLTP_F<-function(key,path){
 }
 
 #與上面差別在於用簡體來源進行LTP，最後以繁體呈現。
+#該文件不能下一行有空
  RLTP_F2<-function(key,path){
      base="https://api.ltp-cloud.com/analysis/?"
      api_key=paste0("api_key=",key)
@@ -68,10 +69,11 @@ RLTP_F<-function(key,path){
  }
  
  #成功套用rLTP,吋題在於他們的網址還是用LTP的舊網址 \QwQ/
- #根據開發者GIT說還要加上這兩行
+ #根據開發程式碼GIT加上require(devtools),install_github('hetong007/rLTP')
+這兩行.測試是不用。
 
-require(devtools)
-install_github('hetong007/rLTP')
+#require(devtools)
+#install_github('hetong007/rLTP')
 
 uri <- 'https://api.ltp-cloud.com/analysis/?'
 params <- c('api_key=w2w0Z3i8R7nZhsZihkHHVWDZGmzaQJbwqEmdtO7q',
@@ -92,6 +94,8 @@ names(data) <- c('id', 'form', 'lemma', 'cpostag', 'postag',
                  'ne', 'head', 'deprel', 'phead', 'pdeprel')
 
 print(data)
+
+#
 
 #待改善之處:
 #目前只用getURL.待探究。
