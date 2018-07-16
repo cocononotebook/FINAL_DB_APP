@@ -1,0 +1,11 @@
+#install.packages().當然這是安裝指令
+#正文
+
+library("tncn")
+#https://cran.r-project.org/web/packages/tmcn/tmcn.pdf
+#簡/繁體中文之編碼處理、轉換字體套件、分詞功能、停用字、文本矩陣.等中文資料處理
+
+library("XML")
+#
+
+#--待補
