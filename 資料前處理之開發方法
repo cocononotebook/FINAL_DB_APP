@@ -8,5 +8,31 @@
 #以"檢視"方式，進行一流串的資料清洗。
 
 #方法流程
-#資料讀取 -> 找尋可剔除特徵並列出可剔除、補值之特徵欄位。
-#  
+#1.資料導入
+#資料讀取 -> 找尋需要剔除補值之特徵。
+##!!改進:目前只針對單一資料，未來希望能抓取該路徑所有資料檔
+
+#2.資料 嵌入 各分詞方法 資料框
+#LTP哈工大
+#jiebaR結巴
+##!Standford
+
+
+#---#
+
+RDPp <-function(file){
+  
+  #確認套件包readr安裝否
+  if (!require('readr')) {
+    install.packages("readr")
+    library("readr")
+  }
+  
+  #偵測到檔案為character，代表有找到該檔案。
+  if(is.character ( read_file(file) ) == TRUE)
+    #過濾\r\n ,iFile為檔案過濾結果
+    iFile=strsplit( read_file(file) , "\r\n" ,"" )
+  #顯示過濾結果
+  iFile
+  
+}
