@@ -1,5 +1,11 @@
 #小記
 
-unlist
+#unlist(資料框)
 #以"向量"來取代"資料框"(matrix,data.frame,list等)出現factors分類格式levels()
 #levels(unlist(資料來源 或 資料物件["資料欄位名稱"]))
+
+#list.files(getwd())
+#列出getwd()路徑中所有的資料檔
+
+#list.dirs(路徑)
+#列出指定路經中的所有路徑 (也就是說跟指定路徑有關的所有子路徑都會列入)
