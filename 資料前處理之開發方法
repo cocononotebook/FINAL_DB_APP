@@ -28,6 +28,12 @@ RDPp <-function(file){
     library("readr")
   }
   
+  #偵測目標資料夾之存放檔案數量
+  FilesNum=length(list.files("檔案名稱"))
+  
+  #製作一List框,負責存放導入之檔案
+  FilesList=list()[1:FilesNum]
+  
   #偵測到檔案為character，代表有找到該檔案。
   if(is.character ( read_file(file) ) == TRUE)
     #過濾\r\n ,iFile為檔案過濾結果
