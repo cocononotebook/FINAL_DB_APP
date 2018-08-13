@@ -16,8 +16,9 @@ pdf_text("檔案路徑") %>% strsplit(split = "\n")
 #將文字向量中的特定字元去除
 strsplit("檔案","欲去除特定字元")
 
-#該網站有將PDF轉成EXCEL檔案的能力，表格轉得很漂亮。
+#該網站有將PDF轉成EXCEL檔案的能力，表格轉得很漂亮。(免費帳號50張PDF限制)
 https://pdftables.com/
+亦支持github
 
 
 #--待補
