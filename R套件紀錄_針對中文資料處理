@@ -8,4 +8,12 @@ library("tncn")
 library("XML")
 #
 
+#擷取PDF檔案，將文字檔導入R
+library("pdftools")
+#將\n語法剃除
+pdf_text("檔案路徑") %>% strsplit(split = "\n")
+
+#將文字向量中的特定字元去除
+strsplit("檔案","欲去除特定字元")
+
 #--待補
