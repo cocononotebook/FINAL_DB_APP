@@ -1,0 +1,20 @@
+#連線SQLSERVER教學
+#http://rwepa.blogspot.com/2013/08/rodbc-sql-server.html
+
+#搜尋ODBC設定 ->選擇使用者設定資料來源名稱 -> 新增 ->選擇SQLSERVER -> 到設定介面
+#1.輸入自訂義A名稱,伺服器會自動列出 下一步
+#2.選"以使用者輸入帳密驗證SQLSERVER" -> 用戶端設定 -> 選擇具名管道 -> 下方輸入SQL帳號密碼
+#3.下一步直到完成。
+
+
+#需要套件
+#RODBC
+
+#登入
+#channel=odbcConnect("sqlserver",uid="sa",pwd="sa")
+
+#輸入語法
+#sqlQuery(channel,"select * from custno_a")
+
+#顯示該資料庫所有資料表
+#sqlQuery(channel,"select * from information_schema.tables where Table_Type = 'BASE TABLE' ")
