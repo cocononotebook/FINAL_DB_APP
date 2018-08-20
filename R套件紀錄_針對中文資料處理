@@ -16,6 +16,10 @@ pdf_text("檔案路徑") %>% strsplit(split = "\n")
 #將文字向量中的特定字元去除
 strsplit("檔案","欲去除特定字元")
 
+#stringr
+library("stringr")
+str_replace_all( "資料來源","[^[:alnum:]]","")
+
 #該網站有將PDF轉成EXCEL檔案的能力，表格轉得很漂亮。(免費帳號50張PDF限制)
 https://pdftables.com/
 亦支持github
