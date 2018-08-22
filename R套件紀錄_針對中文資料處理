@@ -20,6 +20,9 @@ strsplit("檔案","欲去除特定字元")
 library("stringr")
 str_replace_all( "資料來源","[^[:alnum:]]","")
 
+#各式替代各式資料雜質
+http://stat545.com/block022_regular-expression.html
+
 #該網站有將PDF轉成EXCEL檔案的能力，表格轉得很漂亮。(免費帳號50張PDF限制)
 https://pdftables.com/
 亦支持github
