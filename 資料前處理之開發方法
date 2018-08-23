@@ -42,3 +42,16 @@ RDPp <-function(file){
   iFile
   
 }
+
+#測試是否有重復值之方法
+SameCheck<-function(){
+#設定起始值，也是存檔位置
+tmp=0
+#依DataSource資料來源(欄位主鍵為主)進行Factor方法
+for(i in 1:length( levels ( as.factor(DataSource) ) ) ){
+  num=length ( which ( levels ( as.factor( "DataSource"[i][[1]]) ) == DataSource ) )
+  #假設大於1(即有出現過兩次以上)，就記錄其資料欄位內容
+  if(num>1){
+    tmp=paste(tmp,levels ( as.factor( DataSource[i][[1]]) ),sep=",")}
+}
+}
