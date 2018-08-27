@@ -27,5 +27,8 @@ http://stat545.com/block022_regular-expression.html
 https://pdftables.com/
 亦支持github
 
+#去除html語法
+#https://www.r-bloggers.com/htmltotext-extracting-text-from-html-via-xpath/
+
 
 #--待補
