@@ -1,0 +1,20 @@
+library(rvest)
+library(stringr)
+library(xml2)
+
+
+Ana<-function(t,y){
+  for( i in t:y){
+    if(i==t){
+      Repoterurl <- paste0('https://www.ptt.cc/bbs/Tech_Job/index',i,'.html')
+      news_title_org1 <- read_html(Repoterurl) %>% html_nodes(".title") %>% html_text()
+      news_title1=data.frame(Result=str_replace_all(str_replace_all(news_title_org1,"\n",""),"\t",""))
+      Result=rbind (news_title1)
+    }else{}
+    Repoterurl <- paste0('https://www.ptt.cc/bbs/Tech_Job/index',i,'.html')
+    news_title_org2 <- read_html(Repoterurl) %>% html_nodes(".title") %>% html_text()
+    news_title2=data.frame(Result=str_replace_all(str_replace_all(news_title_org2,"\n",""),"\t",""))
+    Result=rbind (Result,news_title2)
+  }
+  return(Result)
+}
