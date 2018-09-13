@@ -1,0 +1,60 @@
+#Secret .auto modify excel
+
+#First_install & library
+install.packages("XLConnect")
+install.packages("XLConnectJars")
+library("XLConnect")
+library("XLConnectJars")
+
+#Second_unlock & load & import lock_Excel
+
+
+Check_File_Available<-function(name,pass){
+  library("XLConnect")
+  library("XLConnectJars")
+  ldata=loadWorkbook(paste0(getwd(),"/xlsx/",name),password=pass)
+  #活頁簿名稱
+  listsheets=getSheets(ldata)
+  rdata=readWorksheet(ldata,listsheets)
+  #0.檢查"檔案日期"為"當天日期-1"。
+  #1.檢查每個活頁簿名稱是否符合相對應名稱。
+  #2.檢查每個活頁簿是否符合相對應欄位名稱。
+  #3.檢查每個活頁簿列、行是否符合過去活頁簿列行。
+}
+
+Load_SingleDay<-function(name,pass){
+  library("XLConnect")
+  library("XLConnectJars")
+  library("readxl")
+  library("writexl")
+  ldata=loadWorkbook(paste0(getwd(),"/xlsx/",name),password=pass)
+  #活頁簿名稱
+  listsheets=getSheets(ldata)
+  rdata=readWorksheet(ldata,listsheets)
+  
+  #checked File's available or not.
+  
+  
+  for(i in 1:length(listsheets)){
+    if(i>3){
+      cdata=rdata[i][[1]][-(1:7),]
+      names(cdata)=cdata[1,]
+      cdata=cdata[-1,]
+      cdata=cdata[,-(which(names(cA)=="國籍"))]
+      cdata=cdata[,-(which(names(cA)=="是否境外移入"))]
+      rdata[i][[1]]=cdata
+    }else{
+      
+    }
+    #final
+    #write_xlsx(rdata,"XXX.xlsx")
+  }
+  #Compare for Checked!
+ 
+  
+
+}
+
+
+
+
