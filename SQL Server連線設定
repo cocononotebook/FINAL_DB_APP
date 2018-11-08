@@ -1,7 +1,7 @@
 #連線SQLSERVER教學
 #http://rwepa.blogspot.com/2013/08/rodbc-sql-server.html
 
-#使用ODBC前要先開啟TCP/IP (SQLSERVER組態網路 -> 通訊協定)子功能全開啟
+#使用ODBC前要先開啟TCP/IP (SQLSERVER組態網路 -> 通訊協定)子功能全開啟 ->之後在服務重開SQLSERVER
 
 #搜尋ODBC設定 ->選擇使用者設定資料來源名稱 -> 新增 ->選擇SQLSERVER -> 到設定介面
 #1.輸入自訂義A名稱,伺服器會自動列出 下一步
