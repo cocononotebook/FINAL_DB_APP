@@ -1,6 +1,0 @@
-#在RStudio RShunyAPP分為ui.R、Server.R、global.R多個檔案結構 或是 SingleFile單一檔案結構。
-#-------------------#
-#選擇多個檔案結構後，ShinyWebApp會新增一資料夾，該資料夾有ui.R、Server.R檔案，並直接互相呼叫 (不用路徑指定)
-#-------------------#
-#global.R原本非Shiny內置檔案，需要R使用者自己建立之RScript。global.R可以轉換成Source，賦予任何ShinyWebApp
-#性
