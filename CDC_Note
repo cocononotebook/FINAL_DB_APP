@@ -1,0 +1,3 @@
+#1.rstudioapi::restartSession()(指令須直接恢復預設套件包。)
+#2.套件先後上載順序會影響函數呼叫。(例如XLConnect與xlsx,如果XLConnect於xlsx後才載入，則會無法saveWorkBook之密碼參數)
+#3暫以手鍵restartsession()
